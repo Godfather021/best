@@ -36,7 +36,7 @@ do
 
   local function superunban_user(user_id, chat_id)
     redis:del('superbanned:'..user_id)
-    return 'المستخدم '..user_id..' فتح الحظر عنه'
+    return 'user '..user_id..' globally banned'
   end
 
   local function is_banned(user_id, chat_id)
@@ -94,13 +94,13 @@ do
         chat_del_user('chat#id'..chat_id, 'user#id'..user_id, ok_cb, false)
       elseif extra.match == 'ban' then
         ban_user(user_id, chat_id)
-        send_msg('chat#id'..chat_id, 'المستخدم '..user_id..' تم حظره', ok_cb, true)
+        send_msg('chat#id'..chat_id, 'user  '..user_id..' banned', ok_cb, true)
       elseif extra.match == 'superban' then
         superban_user(user_id, chat_id)
         send_msg('chat#id'..chat_id, full_name..' ['..user_id..'] globally banned!')
       elseif extra.match == 'unban' then
         unban_user(user_id, chat_id)
-        send_msg('chat#id'..chat_id, 'المستخدم '..user_id..' تم فتح حظره', ok_cb, true)
+        send_msg('chat#id'..chat_id, 'user  '..user_id..' unbanned', ok_cb, true)
       elseif extra.match == 'superunban' then
         superunban_user(user_id, chat_id)
         send_msg('chat#id'..chat_id, full_name..' ['..user_id..'] globally unbanned!')
@@ -134,16 +134,16 @@ do
             chat_del_user('chat#id'..chat_id, 'user#id'..result.id, ok_cb, false)
           elseif extra.match == 'ban' then
             ban_user(user_id, chat_id)
-            send_msg('chat#id'..chat_id, 'المستخدم @'..username..' تم حظره', ok_cb,  true)
+            send_msg('chat#id'..chat_id, 'user  @'..username..' banned', ok_cb,  true)
           elseif extra.match == 'superban' then
             superban_user(user_id, chat_id)
-            send_msg('chat#id'..chat_id, 'المستخدم @'..username..' ['..user_id..'] تم حظره عام', ok_cb,  true)
+            send_msg('chat#id'..chat_id, 'user  @'..username..' ['..user_id..'] globally banned', ok_cb,  true)
           elseif extra.match == 'unban' then
             unban_user(user_id, chat_id)
-            send_msg('chat#id'..chat_id, 'المستخدم @'..username..' فتح حظره', ok_cb,  true)
+            send_msg('chat#id'..chat_id, 'user  @'..username..' unbanned', ok_cb,  true)
           elseif extra.match == 'superunban' then
             superunban_user(user_id, chat_id)
-            send_msg('chat#id'..chat_id, 'المستخدم @'..username..' ['..user_id..'] فتح حظره من العام', ok_cb,  true)
+            send_msg('chat#id'..chat_id, 'user  @'..username..' ['..user_id..'] globally unbanned', ok_cb,  true)
           end
         end
       else
@@ -301,7 +301,7 @@ do
             msgr = res_user(string.gsub(matches[2], '@', ''), resolve_username, {msg=msg, match=matches[1]})
           end
         elseif matches[1] == 'banlist' then
-          local text = 'قائمة محظورين كروب '..msg.to.title..' ['..msg.to.id..']:\n\n'
+          local text = 'ban list'..msg.to.title..' ['..msg.to.id..']:\n\n'
           for k,v in pairs(redis:keys('banned:'..msg.to.id..':*')) do
             text = text..k..'. '..v..'\n'
           end
@@ -323,22 +323,22 @@ do
               settings.anti_flood = 'kick'
               save_data(_config.moderation.data, data)
             end
-              return '\nتم تفعيل وظع الحماية بلطرد'
+              return '\n antiflood enabled.'
             end
           if matches[2] == 'ban' then
             if settings.anti_flood ~= 'ban' then
               settings.anti_flood = 'ban'
               save_data(_config.moderation.data, data)
             end
-              return '\nتم تفعيل وظع الحماية بلحظر'
+              return '\n antiflood enabled and flooder will banned'
             end
           if matches[2] == 'disable' then
             if settings.anti_flood == 'no' then
-              return 'وظع الحماية لم يفعل بعد'
+              return 'antiflood disabled'
             else
               settings.anti_flood = 'no'
               save_data(_config.moderation.data, data)
-              return 'تم تعطيل وظع الحماية'
+              return 'antiflood is not enabled'
             end
           end
         end
