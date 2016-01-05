@@ -18,7 +18,7 @@ local function check_member(cb_extra, success, result)
                   }
             }
           save_data(_config.moderation.data, data)
-          return send_large_msg(receiver, 'انت الادمن هنا لان')
+          return send_large_msg(receiver, 'You have been promoted as moderator for this group')
       end
     end
 end
@@ -30,7 +30,7 @@ local function automodadd(msg)
       chat_info(receiver, check_member,{receiver=receiver, data=data, msg = msg})
   else
       if data[tostring(msg.to.id)] then
-        return 'المجموعة مظافة بلفعل'
+        return 'Group is already added'
       end
       if msg.from.username then
           username = msg.from.username
@@ -55,11 +55,11 @@ end
 local function modadd(msg)
     -- superuser and admins only (because sudo are always has privilege)
     if not is_admin(msg) then
-        return "للمطورين فقط"
+        return "You're not admin"
     end
     local data = load_data(_config.moderation.data)
   if data[tostring(msg.to.id)] then
-    return 'المجموعة مظافة بلفعل'
+    return 'Group is already added.'
   end
     -- create data array in moderation.json
   data[tostring(msg.to.id)] = {
@@ -73,7 +73,7 @@ local function modadd(msg)
       }
   save_data(_config.moderation.data, data)
 
-  return 'تمت اظافة المجموعة'
+  return 'Group has been added.'
 end
 
 local function modrem(msg)
@@ -84,13 +84,13 @@ local function modrem(msg)
     local data = load_data(_config.moderation.data)
     local receiver = get_receiver(msg)
   if not data[tostring(msg.to.id)] then
-    return 'المجموعة غير مظافة'
+    return 'Group is not added.'
   end
 
   data[tostring(msg.to.id)] = nil
   save_data(_config.moderation.data, data)
 
-  return 'تمت ازالة المجموعة'
+  return 'Group has been removed'
 end
 
 local function add(receiver, member_username, member_id)
@@ -100,11 +100,11 @@ local function add(receiver, member_username, member_id)
     return send_large_msg(receiver, '')
   end
   if data[group]['moderators'][tostring(member_id)] then
-    return send_large_msg(receiver, member_username..' انه مدير بلفعل')
+    return send_large_msg(receiver, member_username..' is already a moderator.')
     end
     data[group]['moderators'][tostring(member_id)] = member_username
     save_data(_config.moderation.data, data)
-    return send_large_msg(receiver, '@'..member_username..' تم اظافة المدير')
+    return send_large_msg(receiver, '@'..member_username..' has been promoted.')
 end
 
 local function rem(receiver, member_username, member_id)
@@ -114,11 +114,11 @@ local function rem(receiver, member_username, member_id)
     return send_large_msg(receiver, 'Group is not added.')
   end
   if not data[group]['moderators'][tostring(member_id)] then
-    return send_large_msg(receiver, member_username..' لم يتم تعيينه مدير سابقا')
+    return send_large_msg(receiver, member_username..' is not a moderator.')
   end
   data[group]['moderators'][tostring(member_id)] = nil
   save_data(_config.moderation.data, data)
-  return send_large_msg(receiver, '@'..member_username..' تمت ازالة المدير')
+  return send_large_msg(receiver, '@'..member_username..' has been demoted.')
 end
 
 local function admin_add(receiver, member_username, member_id)  
@@ -134,7 +134,7 @@ local function admin_add(receiver, member_username, member_id)
   
   data['admins'][tostring(member_id)] = member_username
   save_data(_config.moderation.data, data)
-  return send_large_msg(receiver, '@'..member_username..' تمت اظافته للقائمة السوداء')
+  return send_large_msg(receiver, '@'..member_username..' has been promoted as admin.')
 end
 
 local function admin_rem(receiver, member_username, member_id)
@@ -151,14 +151,14 @@ local function admin_rem(receiver, member_username, member_id)
   data['admins'][tostring(member_id)] = nil
   save_data(_config.moderation.data, data)
 
-  return send_large_msg(receiver, 'المطور '..member_username..' تمت ازالته من القائمة السوداء')
+  return send_large_msg(receiver, 'المطور '..member_username..' تhas been demoted.')
 end
 
 local function username_id(cb_extra, success, result)
    local mod_cmd = cb_extra.mod_cmd
    local receiver = cb_extra.receiver
    local member = cb_extra.member
-   local text = 'لا يوجد  @'..member..' في هذه المجموعة.'
+   local text = 'لا يوجد  @'..member..' in this group.'
    for k,v in pairs(result.members) do
       vusername = v.username
       if vusername == member then
@@ -185,7 +185,7 @@ local function admin(msg)
   end
   -- determine if table is empty
   if next(data[tostring(msg.to.id)]['moderators']) == nil then --fix way
-    return 'لا يوجد مدراء في المجموعة'
+    return 'No moderator in this group.'
   end
   local message = 'قائمة المدراء ' .. string.gsub(msg.to.print_name, '_', ' ') .. ':\n'
   for k,v in pairs(data[tostring(msg.to.id)]['moderators']) do
@@ -202,9 +202,9 @@ local function admin_list(msg)
     save_data(_config.moderation.data, data)
   end
   if next(data['admins']) == nil then --fix way
-    return 'لا يوجد مطورين بعد.'
+    return 'No admin available.'
   end
-  local message = 'القائمة السوداء:\n'
+  local message = 'List for Bot admins:\n'
   for k,v in pairs(data['admins']) do
     message = message .. '- ' .. v ..' ['..k..'] \n'
   end
@@ -216,7 +216,7 @@ function run(msg, matches)
     return debugs(msg)
   end
   if not is_chat_msg(msg) then
-    return "حصريا هذا الامر داخل المجموعة"
+    return "Only works on group"
   end
   local mod_cmd = matches[1]
   local receiver = get_receiver(msg)
@@ -228,17 +228,17 @@ function run(msg, matches)
   end
   if matches[1] == 'add' and matches[2] then
     if not is_momod(msg) then
-        return "المدير يقوم بترقية المنصب فقط"
+        return "Only moderator can promote"
     end
   local member = string.gsub(matches[2], "@", "")
     chat_info(receiver, username_id, {mod_cmd= mod_cmd, receiver=receiver, member=member})
   end
   if matches[1] == 'rem' and matches[2] then
     if not is_momod(msg) then
-        return "المدير يقوم بازالة المنصب فقط"
+        return "Only moderator can demote"
     end
     if string.gsub(matches[2], "@", "") == msg.from.username then
-        return "لا يمكن ازالة نفسك"
+        return "You can't demote yourself"
     end
   local member = string.gsub(matches[2], "@", "")
     chat_info(receiver, username_id, {mod_cmd= mod_cmd, receiver=receiver, member=member})
@@ -248,21 +248,21 @@ function run(msg, matches)
   end
   if matches[1] == 'prom' then
     if not is_admin(msg) then
-        return "حصريا للمطورين فقط"
+        return "Only sudo can promote user as admin"
     end
   local member = string.gsub(matches[2], "@", "")
     chat_info(receiver, username_id, {mod_cmd= mod_cmd, receiver=receiver, member=member})
   end
   if matches[1] == 'dem' then
     if not is_admin(msg) then
-        return "حصريا للمطورين فقط"
+        return "Only sudo can promote user as admin"
     end
     local member = string.gsub(matches[2], "@", "")
     chat_info(receiver, username_id, {mod_cmd= mod_cmd, receiver=receiver, member=member})
   end
   if matches[1] == 'black' then
     if not is_admin(msg) then
-        return 'للمطورين فقط'
+        return 'Admin only!'
     end
     return admin_list(msg)
   end
