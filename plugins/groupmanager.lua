@@ -8,7 +8,7 @@ local TIME_CHECK = 4 -- seconds
 local function create_group(msg)
   -- superuser and admins only (because sudo are always has privilege)
   if not is_admin(msg) then
-    return "هذا الامر للمطورين فقط"
+    return "Admins only"
   end
   local group_creator = msg.from.print_name
   create_group_chat (group_creator, group_name, ok_cb, false)
@@ -17,7 +17,7 @@ end
 
 local function set_description(msg, data)
   if not is_mod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local data_cat = 'description'
 	data[tostring(msg.to.id)][data_cat] = deskripsi
@@ -37,7 +37,7 @@ end
 
 local function set_rules(msg, data)
   if not is_mod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local data_cat = 'rules'
 	data[tostring(msg.to.id)][data_cat] = rules
@@ -58,91 +58,91 @@ end
 -- lock/unlock group name. bot automatically change group name when locked
 local function lock_group_name(msg, data)
   if not is_momod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_name_set = data[tostring(msg.to.id)]['settings']['set_name']
   local group_name_lock = data[tostring(msg.to.id)]['settings']['lock_name']
 	if group_name_lock == 'yes' then
-	  return 'تغيير الاسم مقفول بلفعل'
+	  return 'group name changed'
 	else
 	  data[tostring(msg.to.id)]['settings']['lock_name'] = 'yes'
 	  save_data(_config.moderation.data, data)
 	  data[tostring(msg.to.id)]['settings']['set_name'] = string.gsub(msg.to.print_name, '_', ' ')
 	  save_data(_config.moderation.data, data)
-	  return 'تم قفل الاسم'
+	  return 'lock name'
 	end
 end
 
 local function unlock_group_name(msg, data)
   if not is_momod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_name_set = data[tostring(msg.to.id)]['settings']['set_name']
   local group_name_lock = data[tostring(msg.to.id)]['settings']['lock_name']
 	if group_name_lock == 'no' then
-	  return 'تغيير الاسم مفتوح بلفعل'
+	  return 'name is'nt locked
 	else
 	  data[tostring(msg.to.id)]['settings']['lock_name'] = 'no'
 	  save_data(_config.moderation.data, data)
-	  return 'تم فتح الاسم'
+	  return 'name lock'
 	end
 end
 
 --lock/unlock group member. bot automatically kick new added user when locked
 local function lock_group_member(msg, data)
   if not is_momod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_member_lock = data[tostring(msg.to.id)]['settings']['lock_member']
 	if group_member_lock == 'yes' then
-	  return 'الاظافة مقفولة بلفعل'
+	  return 'group members are locked'
 	else
 	  data[tostring(msg.to.id)]['settings']['lock_member'] = 'yes'
 	  save_data(_config.moderation.data, data)
 	end
-	return 'تم قفل الاظافة'
+	return 'lock member'
 end
 
 local function unlock_group_member(msg, data)
   if not is_momod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_member_lock = data[tostring(msg.to.id)]['settings']['lock_member']
 	if group_member_lock == 'no' then
-	  return 'الاظافة مفتوحة بلفعل'
+	  return 'group members are not locked'
 	else
 	  data[tostring(msg.to.id)]['settings']['lock_member'] = 'no'
 	  save_data(_config.moderation.data, data)
-	  return 'تم فتح لاظافة'
+	  return 'lock member'
 	end
 end
 
 --lock/unlock group photo. bot automatically keep group photo when locked
 local function lock_group_photo(msg, data)
   if not is_momod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_photo_lock = data[tostring(msg.to.id)]['settings']['lock_photo']
 	if group_photo_lock == 'yes' then
-	  return 'الصورة مقفولة بلفعل'
+	  return 'group name locked'
 	else
 	  data[tostring(msg.to.id)]['settings']['set_photo'] = 'waiting'
 	  save_data(_config.moderation.data, data)
 	end
-	return 'لتأكيد القفل ارسل صورة المجموعة هنا الان'
+	return 'please send the new group photo'
 end
 
 local function unlock_group_photo(msg, data)
   if not is_momod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_photo_lock = data[tostring(msg.to.id)]['settings']['lock_photo']
 	if group_photo_lock == 'no' then
-	  return 'الصورة مفتوحة بلفعل'
+	  return 'group photo is not locked
 	else
 	  data[tostring(msg.to.id)]['settings']['lock_photo'] = 'no'
 	  save_data(_config.moderation.data, data)
-	  return 'تم فتح الصورة'
+	  return 'lock photo'
 	end
 end
 
@@ -159,7 +159,7 @@ local function set_group_photo(msg, success, result)
     save_data(_config.moderation.data, data)
     data[tostring(msg.to.id)]['settings']['lock_photo'] = 'yes'
     save_data(_config.moderation.data, data)
-    send_large_msg(receiver, 'تم تاكيد بنجاح', ok_cb, false)
+    send_large_msg(receiver, 'group photo locked', ok_cb, false)
   else
     print('Error downloading: '..msg.id)
     send_large_msg(receiver, 'Failed, please try again!', ok_cb, false)
@@ -168,7 +168,7 @@ end
 -- show group settings
 local function show_group_settings(msg, data)
   if not is_mod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local settings = data[tostring(msg.to.id)]['settings']
   local text = "Group settings:\nLock group name : "..settings.lock_name.."\nLock group photo : "..settings.lock_photo.."\nLock group member : "..settings.lock_member
@@ -178,7 +178,7 @@ end
 --lock/unlock spam protection
 local function lock_group_spam(msg, data)
   if not is_mod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
     local group_spam_lock = data[tostring(msg.to.id)]['settings']['lock_spam']
   if group_spam_lock == 'yes' then
@@ -192,7 +192,7 @@ end
 
 local function unlock_group_spam(msg, data)
   if not is_mod(msg) then
-    return "هذا الامر لمدراء المجموعة فقط"
+    return "moderators only"
   end
   local group_spam_lock = data[tostring(msg.to.id)]['settings']['lock_spam']
 	if group_spam_lock == 'no' then
@@ -358,7 +358,7 @@ function run(msg, matches)
       if matches[3] == 'photo' and is_mod(msg) then
         data[tostring(msg.to.id)]['settings']['set_photo'] = 'waiting'
 	      save_data(_config.moderation.data, data)
-	      return 'ارجو ان ترسل صورة الجديدة هنا الان'
+	      return 'please send new group photo'
       end
 	  end
 
