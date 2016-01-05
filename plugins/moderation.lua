@@ -55,28 +55,28 @@ do
     local data = load_data(_config.moderation.data)
     local group = string.gsub(receiver, 'chat#id', '')
     if not data[group] then
-      return send_large_msg(receiver, 'الكروب غير مظاف.')
+      return send_large_msg(receiver, 'group id added.')
     end
     if data[group]['moderators'][tostring(member_id)] then
-      return send_large_msg(receiver, member_username..' انه ادمن حقا.')
+      return send_large_msg(receiver, member_username..' This user is already admin')
     end
     data[group]['moderators'][tostring(member_id)] = member_username
     save_data(_config.moderation.data, data)
-    return send_large_msg(receiver, member_username..' تم اظافته ادمن')
+    return send_large_msg(receiver, member_username..' admin added')
   end
 
   local function demote(receiver, member_username, member_id)
     local data = load_data(_config.moderation.data)
     local group = string.gsub(receiver, 'chat#id', '')
     if not data[group] then
-      return send_large_msg(receiver, 'المجموعة غير مظافة.')
+      return send_large_msg(receiver, 'Group is not added.')
     end
     if not data[group]['moderators'][tostring(member_id)] then
-      return send_large_msg(receiver, member_username..' انه ليس ادمن')
+      return send_large_msg(receiver, member_username..' you are not admin!')
     end
     data[group]['moderators'][tostring(member_id)] = nil
     save_data(_config.moderation.data, data)
-    return send_large_msg(receiver, member_username..' تمت ازالته من الادمن')
+    return send_large_msg(receiver, member_username..' admin has been demoted.')
   end
 
   local function admin_promote(receiver, member_username, member_id)
@@ -86,11 +86,11 @@ do
       save_data(_config.moderation.data, data)
     end
     if data['admins'][tostring(member_id)] then
-     return send_large_msg(receiver, member_username..' انه مطور حقا.')
+     return send_large_msg(receiver, member_username..' user is admin.')
     end
     data['admins'][tostring(member_id)] = member_username
     save_data(_config.moderation.data, data)
-    return send_large_msg(receiver, member_username..' تم اظافة مطور.')
+    return send_large_msg(receiver, member_username..' user has been promoted as admin.')
   end
 
   local function admin_demote(receiver, member_username, member_id)
@@ -100,11 +100,11 @@ do
       save_data(_config.moderation.data, data)
     end
     if not data['admins'][tostring(member_id)] then
-      return send_large_msg(receiver, member_username..' هذا ليس مطور.')
+      return send_large_msg(receiver, member_username..' You are not admin.')
     end
     data['admins'][tostring(member_id)] = nil
     save_data(_config.moderation.data, data)
-    return send_large_msg(receiver, 'المطور '..member_username..' تمت ازالة منصبه.')
+    return send_large_msg(receiver, 'admin '..member_username..' has been demoted.')
   end
 
   local function username_id(extra, success, result)
@@ -204,13 +204,13 @@ do
         elseif matches[1] == 'modlist' then
           local data = load_data(_config.moderation.data)
           if not data[tostring(msg.to.id)] then
-            return 'المجموعة غير مظافة'
+            return 'group is not added.'
           end
           -- determine if table is empty
           if next(data[tostring(msg.to.id)]['moderators']) == nil then --fix way
-            return 'لا يوجد ادمنية.'
+            return 'you are not admin.'
           end
-          local message = 'ادمنية كروب ' .. string.gsub(msg.to.print_name, '_', ' ') .. ':\n'
+          local message = 'group admin' .. string.gsub(msg.to.print_name, '_', ' ') .. ':\n'
           for k,v in pairs(data[tostring(msg.to.id)]['moderators']) do
             message = message .. '- '..v..' [' ..k.. '] \n'
           end
@@ -249,10 +249,10 @@ do
             save_data(_config.moderation.data, data)
           end
           if next(data['admins']) == nil then --fix way
-            return 'لم يتم اظافة مطورين بعد.'
+            return 'user has been promoted as admin.'
           end
           for k,v in pairs(data['admins']) do
-            message = 'مطورين البوت:\n'..'- '..v..' ['..k..'] \n'
+            message = 'bot admins\n'..'- '..v..' ['..k..'] \n'
           end
           return message
         end
